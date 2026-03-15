@@ -1,0 +1,56 @@
+name: Liquibase Check
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  liquibase:
+
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: 'Y'
+          MSSQL_SA_PASSWORD: ${{ secrets.SA_PASSWORD }} # Ensure this is at least 8 chars, uppercase, lowercase, numbers
+        ports:
+          - 1433:1433
+          
+    steps:
+      
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build project
+        run: mvn -B clean install -DskipTests
+
+      - name: Create liquibase-init-db.properties
+        run: |
+          echo "changeLogFile=src/main/resources/db/changelogs/db-init-changelog.xml" >> src/main/resources/liquibase-init-db.properties
+          echo "url=jdbc:sqlserver://localhost:1433;databaseName=master;encrypt=true;trustServerCertificate=true" >> src/main/resources/liquibase-init-db.properties
+          echo "username=sa" >> src/main/resources/liquibase-init-db.properties
+          echo "password=${{ secrets.SA_PASSWORD }}" >> src/main/resources/liquibase-init-db.properties
+
+      - name: Update Initit Db
+        run: mvn -Pinit-db liquibase:update
+          
+      - name: Create liquibase.properties
+        run: |
+          echo "changeLogFile=src/main/resources/db/changelogs/master-changelog.xml" >> src/main/resources/liquibase.properties
+          echo "url=${{ secrets.DB_URL }}" >> src/main/resources/liquibase.properties
+          echo "username=${{ secrets.DB_USERNAME }}" >> src/main/resources/liquibase.properties
+          echo "password=${{ secrets.DB_PASSWORD }}" >> src/main/resources/liquibase.properties
+
+      - name: Liquibase validate
+        run: mvn liquibase:validate
