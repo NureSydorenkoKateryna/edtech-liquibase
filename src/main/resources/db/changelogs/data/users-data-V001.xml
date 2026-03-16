@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="004-insert-mock-users" author="derkach">
+        <preConditions onFail="HALT">
+            <tableExists tableName="user"/>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @i INT = 1;
+
+            WHILE @i &lt;= 100
+            BEGIN
+            INSERT INTO [user] (username, email, password_hash)
+            VALUES (
+                'mock_user_' + CAST(@i AS VARCHAR),
+                'mock_user_' + CAST(@i AS VARCHAR) + '@example.com',
+                'mock_hashed_password_123'
+                );
+
+            SET @i = @i + 1;
+            END
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM [user] WHERE email LIKE 'mock_user_%@example.com';
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
