@@ -37,6 +37,7 @@
         </sql>
 
         <rollback>
+            <sql>DELETE FROM dbo.tables WHERE name = 'user';</sql>
             <dropTable tableName="user"/>
         </rollback>
     </changeSet>
