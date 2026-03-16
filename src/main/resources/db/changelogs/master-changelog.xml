@@ -9,7 +9,10 @@
     <!--  INIT: Initial table creation                 -->
     <!--  All CREATE TABLE changesets go here           -->
     <!-- ============================================= -->
-    <!-- <include file="init/tables-init.xml" relativeToChangelogFile="true"/> -->
+    <include file="init/tables-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/user-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/role-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/user_role-init.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->
@@ -26,9 +29,9 @@
     <!-- <include file="data/your-data-file.xml" relativeToChangelogFile="true"/> -->
 
     <!-- This command include all files in specified folders -->
-    <includeAll path="./init" relativeToChangelogFile="true"/>
+    <!-- <includeAll path="./init" relativeToChangelogFile="true"/>
     <includeAll path="./data" relativeToChangelogFile="true"/>
     <includeAll path="./changes" relativeToChangelogFile="true"/>
-    <includeAll path="./triggers" relativeToChangelogFile="true"/>
+    <includeAll path="./triggers" relativeToChangelogFile="true"/> -->
 
 </databaseChangeLog>
