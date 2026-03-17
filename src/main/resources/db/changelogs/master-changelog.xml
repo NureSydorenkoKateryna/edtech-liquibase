@@ -14,7 +14,6 @@
     <include file="init/role-init.xml" relativeToChangelogFile="true"/>
     <include file="init/user_role-init.xml" relativeToChangelogFile="true"/>
     <include file="init/course-init.xml" relativeToChangelogFile="true"/>
-    <include file="init/module-init.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->
