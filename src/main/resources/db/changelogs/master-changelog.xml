@@ -13,6 +13,7 @@
     <include file="init/user-init.xml" relativeToChangelogFile="true"/>
     <include file="init/role-init.xml" relativeToChangelogFile="true"/>
     <include file="init/user_role-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/course-init.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->
