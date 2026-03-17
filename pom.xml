@@ -65,6 +65,12 @@
                 <liquibase.propertyFile>src/main/resources/liquibase-init-db.properties</liquibase.propertyFile>
             </properties>
         </profile>
+        <profile>
+            <id>prod-db</id>
+            <properties>
+                <liquibase.propertyFile>src/main/resources/liquibase.prod.properties</liquibase.propertyFile>
+            </properties>
+        </profile>
     </profiles>
 
 </project>
