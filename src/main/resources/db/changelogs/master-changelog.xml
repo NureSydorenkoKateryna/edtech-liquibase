@@ -15,6 +15,7 @@
     <include file="init/user_role-init.xml" relativeToChangelogFile="true"/>
     <include file="init/course-init.xml" relativeToChangelogFile="true"/>
     <include file="init/module-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/lesson-init.xml" relativeToChangelogFile="true"/>
     <include file="init/enrollment-init.xml" relativeToChangelogFile="true"/>
 
 
