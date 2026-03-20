@@ -19,6 +19,7 @@
     <include file="init/lesson-init.xml" relativeToChangelogFile="true"/>
     <include file="init/task-init.xml" relativeToChangelogFile="true"/>
     <include file="init/lesson_completion-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/quiz-init.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->
