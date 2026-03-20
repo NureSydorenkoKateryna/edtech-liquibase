@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="002-create-task-table" author="bilous">
+        <createTable tableName="task">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_task" nullable="false" />
+            </column>
+            <column name="lesson_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="task_type" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="min_score" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_score" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="task"
+                                 baseColumnNames="lesson_id"
+                                 constraintName="fk_task_lesson"
+                                 referencedTableName="lesson"
+                                 referencedColumnNames="id" />
+
+        <sql>
+            INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
+            VALUES ('liquibase_lab', 'task', 'SYSTEM', 'bilous', 1, 'content_service',
+            'Tasks that belong to lessons and define grading boundaries.',
+            (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('task')),
+            SYSUTCDATETIME(), NULL);
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM dbo.tables WHERE name = 'task';</sql>
+            <dropTable tableName="task"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
