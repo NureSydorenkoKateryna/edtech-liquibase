@@ -16,10 +16,10 @@
                 <constraints nullable="false"/>
             </column>
             <column name="content_url" type="VARCHAR(2048)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="order_index" type="INT">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
         </createTable>
 
