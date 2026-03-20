@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="001-create-lesson-table" author="bilous">
+        <createTable tableName="lesson">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_lesson" nullable="false" />
+            </column>
+            <column name="module_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content_url" type="VARCHAR(2048)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="order_index" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="lesson"
+                                 baseColumnNames="module_id"
+                                 constraintName="fk_lesson_module"
+                                 referencedTableName="module"
+                                 referencedColumnNames="id" />
+
+        <addUniqueConstraint tableName="lesson"
+                             columnNames="module_id, order_index"
+                             constraintName="uk_lesson_module_id_order_index"/>
+
+        <sql>
+            INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
+            VALUES ('liquibase_lab', 'lesson', 'SYSTEM', 'bilous', 1, 'content_service',
+            'Lessons that belong to modules. Order index defines the sequence of lessons within a module.',
+            (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('lesson')),
+            SYSUTCDATETIME(), NULL);
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM dbo.tables WHERE name = 'lesson';</sql>
+            <dropTable tableName="lesson"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
