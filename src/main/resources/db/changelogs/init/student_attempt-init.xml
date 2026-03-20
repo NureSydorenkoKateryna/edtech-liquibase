@@ -35,6 +35,11 @@
                                  referencedTableName="task"
                                  referencedColumnNames="id" />
 
+        <createIndex tableName="student_attempt" indexName="idx_student_attempt_enrollment_id_task_id">
+            <column name="enrollment_id"/>
+            <column name="task_id"/>
+        </createIndex>
+
         <sql>
             INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
             VALUES ('liquibase_lab', 'student_attempt', 'SYSTEM', 'derkach', 1, 'testing_service',
