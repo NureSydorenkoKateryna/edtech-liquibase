@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="003-create-lesson_completion-table" author="bilous">
+        <createTable tableName="lesson_completion">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_lesson_completion" nullable="false" />
+            </column>
+            <column name="enrollment_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="lesson_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="completed_at" type="DATETIME" defaultValueComputed="GETDATE()">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="lesson_completion"
+                                 baseColumnNames="enrollment_id"
+                                 constraintName="fk_lesson_completion_enrollment"
+                                 referencedTableName="enrollment"
+                                 referencedColumnNames="id" />
+
+        <addForeignKeyConstraint baseTableName="lesson_completion"
+                                 baseColumnNames="lesson_id"
+                                 constraintName="fk_lesson_completion_lesson"
+                                 referencedTableName="lesson"
+                                 referencedColumnNames="id" />
+
+        <addUniqueConstraint tableName="lesson_completion"
+                             columnNames="enrollment_id, lesson_id"
+                             constraintName="uk_lesson_completion_enrollment_id_lesson_id"/>
+
+        <sql>
+            INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
+            VALUES ('liquibase_lab', 'lesson_completion', 'SYSTEM', 'bilous', 1, 'student_progress_service',
+            'Tracks completed lessons for each enrollment.',
+            (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('lesson_completion')),
+            SYSUTCDATETIME(), NULL);
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM dbo.tables WHERE name = 'lesson_completion';</sql>
+            <dropTable tableName="lesson_completion"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
