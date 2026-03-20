@@ -21,6 +21,7 @@
     <include file="init/lesson_completion-init.xml" relativeToChangelogFile="true"/>
     <include file="init/quiz-init.xml" relativeToChangelogFile="true"/>
     <include file="init/question-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/answer_option-init.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->

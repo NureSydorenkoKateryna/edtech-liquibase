@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="003-create-answer_option-table" author="druchek">
+        <createTable tableName="answer_option">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_answer_option" nullable="false" />
+            </column>
+            <column name="question_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="content" type="VARCHAR(MAX)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_correct" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="answer_option"
+                                 baseColumnNames="question_id"
+                                 constraintName="fk_answer_option_question"
+                                 referencedTableName="question"
+                                 referencedColumnNames="id" />
+
+        <createIndex tableName="answer_option" indexName="idx_answer_option_question_id">
+            <column name="question_id"/>
+        </createIndex>
+
+        <sql>
+            INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
+            VALUES ('liquibase_lab', 'answer_option', 'SYSTEM', 'druchek', 1, 'testing_service',
+                    'Creation of answer_option table.',
+                    (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('answer_option')),
+                    SYSUTCDATETIME(), NULL);
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM dbo.tables WHERE name = 'answer_option';</sql>
+            <dropTable tableName="answer_option"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
