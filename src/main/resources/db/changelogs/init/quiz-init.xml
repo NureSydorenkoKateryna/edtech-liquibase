@@ -26,6 +26,10 @@
                                  referencedTableName="user"
                                  referencedColumnNames="id" />
 
+        <createIndex tableName="quiz" indexName="idx_quiz_author_id">
+            <column name="author_id"/>
+        </createIndex>
+
         <sql>
             INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
             VALUES ('liquibase_lab', 'quiz', 'SYSTEM', 'druchek', 1, 'testing_service',
