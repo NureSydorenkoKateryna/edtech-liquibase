@@ -16,7 +16,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="completed_at" type="DATETIME" defaultValueComputed="GETDATE()">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
         </createTable>
 
