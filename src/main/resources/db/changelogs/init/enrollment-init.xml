@@ -43,7 +43,7 @@
 
         <sql>
             INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
-            VALUES ('liquibase_lab', 'enrollment', 'SYSTEM', 'sydorenko', 1, 'content_service',
+            VALUES ('liquibase_lab', 'enrollment', 'SYSTEM', 'sydorenko', 1, 'student_progress_service',
             'Tracks user enrollments in courses.',
             (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('enrollment')),
             SYSUTCDATETIME(), NULL);
