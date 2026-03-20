@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="004-create-answer_attempt-table" author="druchek">
+        <createTable tableName="answer_attempt">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_answer_attempt" nullable="false" />
+            </column>
+            <column name="answer_option_id" type="BIGINT">
+                <constraints nullable="true" />
+            </column>
+            <column name="question_id" type="BIGINT">
+                <constraints nullable="true" />
+            </column>
+            <column name="student_attempt_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="provided_text" type="VARCHAR(MAX)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_answer_correct" type="BIT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="answer_attempt"
+                                 baseColumnNames="answer_option_id"
+                                 constraintName="fk_answer_attempt_answer_option"
+                                 referencedTableName="answer_option"
+                                 referencedColumnNames="id" />
+
+        <addForeignKeyConstraint baseTableName="answer_attempt"
+                                 baseColumnNames="question_id"
+                                 constraintName="fk_answer_attempt_question"
+                                 referencedTableName="question"
+                                 referencedColumnNames="id" />
+
+        <addForeignKeyConstraint baseTableName="answer_attempt"
+                                 baseColumnNames="student_attempt_id"
+                                 constraintName="fk_answer_attempt_student_attempt"
+                                 referencedTableName="student_attempt"
+                                 referencedColumnNames="id" />
+
+        <addUniqueConstraint tableName="answer_attempt"
+                             columnNames="answer_option_id, question_id, student_attempt_id"
+                             constraintName="uk_answer_attempt_answer_option_id_question_id_student_attempt_id"/>
+
+        <sql>
+            INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
+            VALUES ('liquibase_lab', 'answer_attempt', 'SYSTEM', 'druchek', 1, 'testing_service',
+                    'Creation of answer_attempt table.',
+                    (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('answer_attempt')),
+                    SYSUTCDATETIME(), NULL);
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM dbo.tables WHERE name = 'answer_attempt';</sql>
+            <dropTable tableName="answer_attempt"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
