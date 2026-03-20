@@ -9,10 +9,22 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="pk_quiz" nullable="false" />
             </column>
+            <column name="author_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="title" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
             <column name="instructions" type="VARCHAR(MAX)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
+
+        <addForeignKeyConstraint baseTableName="quiz"
+                                 baseColumnNames="author_id"
+                                 constraintName="fk_quiz_user"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id" />
 
         <sql>
             INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
