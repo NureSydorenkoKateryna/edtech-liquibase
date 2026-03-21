@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-insert-initial-users" author="derkach">
+        <preConditions onFail="HALT">
+            <tableExists tableName="user"/>
+        </preConditions>
+
+        <sql splitStatements="true">
+            INSERT INTO [user] (username, email, password_hash)
+            VALUES
+                ('alice_smith', 'alice.smith@gmail.com', 'ph_8jK92lPz1_secure'),
+                ('bob_jones', 'b.jones@company.org', 'ph_mN34vB56x_hash'),
+                ('charlie_dev', 'charlie.backend@outlook.com', 'ph_qW12eR34t_secret');
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM [user] WHERE email IN (
+                'alice.smith@gmail.com',
+                'b.jones@company.org',
+                'charlie.backend@outlook.com'
+                );
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
