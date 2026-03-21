@@ -40,10 +40,10 @@
                 JOIN role r ON ur.role_id = r.id
                 WHERE r.name = 'student';
 
-            INSERT INTO enrollment (course_id, user_id, completed_at)
+            INSERT INTO enrollment (course_id, user_id, enrolled_at, completed_at)
             VALUES
-                (@course1Id, @user1Id, NULL),
-                (@course2Id, @user1Id, GETDATE());
+                (@course1Id, @user1Id, GETDATE(), NULL),
+                (@course2Id, @user1Id, DATEADD(day, -20, GETDATE()), GETDATE());
         </sql>
 
         <rollback>
