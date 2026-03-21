@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="005-insert-initial-tasks" author="bilous">
+        <preConditions onFail="HALT">
+            <tableExists tableName="task"/>
+            <tableExists tableName="lesson"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                    WHEN EXISTS (SELECT 1 FROM lesson WHERE title = 'c1_m1_lesson_1')
+                    AND EXISTS (SELECT 1 FROM lesson WHERE title = 'c1_m1_lesson_2')
+                    AND EXISTS (SELECT 1 FROM lesson WHERE title = 'c1_m1_lesson_3')
+                    THEN 1 ELSE 0
+                    END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @lesson1Id BIGINT;
+            DECLARE @lesson2Id BIGINT;
+            DECLARE @lesson3Id BIGINT;
+
+            SELECT @lesson1Id = id FROM lesson WHERE title = 'c1_m1_lesson_1';
+            SELECT @lesson2Id = id FROM lesson WHERE title = 'c1_m1_lesson_2';
+            SELECT @lesson3Id = id FROM lesson WHERE title = 'c1_m1_lesson_3';
+
+            INSERT INTO task (lesson_id, title, task_type, min_score, max_score)
+            VALUES
+            (@lesson1Id, 'c1_m1_l1_task_1', 'quiz', 0, 100),
+            (@lesson2Id, 'c1_m1_l2_task_1', 'quiz', 0, 100),
+            (@lesson3Id, 'c1_m1_l3_task_1', 'quiz', 0, 100);
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM task
+                WHERE lesson_id IN (
+                    SELECT id FROM lesson WHERE title IN ('c1_m1_lesson_1', 'c1_m1_lesson_2', 'c1_m1_lesson_3')
+                )
+                AND title IN ('c1_m1_l1_task_1', 'c1_m1_l2_task_1', 'c1_m1_l3_task_1');
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
