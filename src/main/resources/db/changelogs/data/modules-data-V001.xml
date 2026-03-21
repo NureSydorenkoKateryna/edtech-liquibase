@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-insert-initial-modules" author="sydorenko">
+        <preConditions onFail="HALT">
+            <tableExists tableName="module"/>
+            <tableExists tableName="course"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                    WHEN EXISTS (SELECT 1 FROM course WHERE title = 'course_1')
+                    AND EXISTS (SELECT 1 FROM course WHERE title = 'course_2')
+                THEN 1 ELSE 0
+                END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @course1Id BIGINT;
+            DECLARE @course2Id BIGINT;
+
+            SELECT @course1Id = id FROM course WHERE title = 'course_1';
+            SELECT @course2Id = id FROM course WHERE title = 'course_2';
+
+            INSERT INTO module (course_id, title, description, order_index)
+            VALUES
+            (@course1Id, 'c1_module_1', 'module_description_1', 1),
+            (@course1Id, 'c1_module_2', 'module_description_2', 2),
+            (@course1Id, 'c1_module_3', 'module_description_3', 3),
+
+            (@course2Id, 'c2_module_1', 'module_description_1', 1),
+            (@course2Id, 'c2_module_2', 'module_description_2', 2),
+            (@course2Id, 'c2_module_3', 'module_description_3', 3);
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM module
+                WHERE course_id IN ( SELECT id FROM course WHERE title IN ('course_1', 'course_2'))
+                AND title IN ('module_1', 'module_2', 'module_3');
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
