@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="004-create-task_quiz-table" author="sydorenko">
+        <createTable tableName="task_quiz">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_task_quiz" nullable="false" />
+            </column>
+            <column name="task_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quiz_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_limit_minutes" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="passing_score" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="task_quiz"
+                                 baseColumnNames="task_id"
+                                 constraintName="fk_task_quiz_task"
+                                 referencedTableName="task"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="task_quiz"
+                                 baseColumnNames="quiz_id"
+                                 constraintName="fk_task_quiz_quiz"
+                                 referencedTableName="quiz"
+                                 referencedColumnNames="id" />
+
+        <addUniqueConstraint tableName="task_quiz"
+                             columnNames="task_id, quiz_id"
+                             constraintName="uk_task_quiz_task_id_quiz_id"/>
+
+        <sql>
+            INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
+            VALUES ('liquibase_lab', 'task_quiz', 'SYSTEM', 'sydorenko', 1, 'content_service',
+                    'Task quizzes table.',
+                    (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('task_quiz')),
+                    SYSUTCDATETIME(), NULL);
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM dbo.tables WHERE name = 'task_quiz';</sql>
+            <dropTable tableName="task_quiz"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
