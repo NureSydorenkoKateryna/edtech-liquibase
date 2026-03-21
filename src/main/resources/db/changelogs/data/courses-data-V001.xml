@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="005-insert-initial-courses" author="sydorenko">
+
+        <preConditions onFail="HALT">
+            <tableExists tableName="course"/>
+            <tableExists tableName="user"/>
+            <tableExists tableName="role"/>
+            <tableExists tableName="user_role"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM user_role ur
+                    JOIN role r ON ur.role_id = r.id
+                    WHERE r.name = 'moderator'
+                )
+                THEN 1 ELSE 0
+                END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @authorId BIGINT;
+
+            SELECT TOP 1 @authorId = ur.user_id
+            FROM user_role ur
+            JOIN role r ON ur.role_id = r.id
+            WHERE r.name = 'moderator';
+
+            INSERT INTO course (author_id, title, description, published_at)
+            VALUES
+            (@authorId, 'course_1', 'course_description_1.', GETDATE()),
+            (@authorId, 'course_2', 'course_description_2.', GETDATE()),
+            (@authorId, 'course_3', 'course_description_3', NULL);
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM course
+                WHERE title IN ('course_1', 'course_2', 'course_3');
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
