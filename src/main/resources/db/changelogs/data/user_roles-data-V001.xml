@@ -10,7 +10,15 @@
             <tableExists tableName="role"/>
             <tableExists tableName="user_role"/>
             <sqlCheck expectedResult="1">
-                SELECT CASE WHEN EXISTS (SELECT 1 FROM [user] WHERE id = 1) THEN 1 ELSE 0 END;
+                SELECT CASE
+                           WHEN EXISTS (SELECT 1 FROM [user] WHERE username = 'alice_smith')
+                               AND EXISTS (SELECT 1 FROM [user] WHERE username = 'bob_jones')
+                               AND EXISTS (SELECT 1 FROM [user] WHERE username = 'charlie_dev')
+                               AND EXISTS (SELECT 1 FROM role WHERE name = 'student')
+                               AND EXISTS (SELECT 1 FROM role WHERE name = 'moderator')
+                               AND EXISTS (SELECT 1 FROM role WHERE name = 'admin')
+                               THEN 1 ELSE 0
+                           END;
             </sqlCheck>
         </preConditions>
 
