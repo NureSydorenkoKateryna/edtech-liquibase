@@ -41,7 +41,6 @@
     <!-- <include file="data/your-data-file.xml" relativeToChangelogFile="true"/> -->
 
     <include file="data/roles-data-V001.xml" relativeToChangelogFile="true"/>
-    <include file="data/users-data-V001.xml" relativeToChangelogFile="true"/>
 <!--    <include file="data/users-data-V001.xml" relativeToChangelogFile="true"/>-->
     <!-- This command include all files in specified folders -->
     <!-- <includeAll path="./init" relativeToChangelogFile="true"/>
