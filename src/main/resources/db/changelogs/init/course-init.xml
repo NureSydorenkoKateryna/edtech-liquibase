@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="001-create-course-table" author="sydorenko">
+        <createTable tableName="course">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_course" nullable="false" />
+            </column>
+            <column name="author_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="created_at" type="DATETIME" defaultValueComputed="GETDATE()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="published_at" type="DATETIME"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="course"
+                                 baseColumnNames="author_id"
+                                 constraintName="fk_course_user"
+                                 referencedTableName="user"
+                                 referencedColumnNames="id" />
+
+        <createIndex tableName="course" indexName="idx_course_author_id_published_at">
+            <column name="author_id"/>
+            <column name="published_at"/>
+        </createIndex>
+
+        <sql>
+            INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
+            VALUES ('liquibase_lab', 'course', 'SYSTEM', 'sydorenko', 1, 'content_service',
+                    'Courses created by users (authors).',
+                    (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('course')),
+                    SYSUTCDATETIME(), NULL);
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM dbo.tables WHERE name = 'course';</sql>
+            <dropTable tableName="course"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

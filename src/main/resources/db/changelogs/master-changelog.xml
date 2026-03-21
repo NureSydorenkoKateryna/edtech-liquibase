@@ -13,6 +13,18 @@
     <include file="init/user-init.xml" relativeToChangelogFile="true"/>
     <include file="init/role-init.xml" relativeToChangelogFile="true"/>
     <include file="init/user_role-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/course-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/module-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/enrollment-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/lesson-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/task-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/lesson_completion-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/quiz-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/question-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/answer_option-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/student_attempt-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/answer_attempt-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/task_quiz-init.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->
@@ -27,8 +39,9 @@
     <!--  INSERT statements for reference data         -->
     <!-- ============================================= -->
     <!-- <include file="data/your-data-file.xml" relativeToChangelogFile="true"/> -->
-    <include file="data/users-data-V001.xml" relativeToChangelogFile="true"/>
+
     <include file="data/roles-data-V001.xml" relativeToChangelogFile="true"/>
+<!--    <include file="data/users-data-V001.xml" relativeToChangelogFile="true"/>-->
     <!-- This command include all files in specified folders -->
     <!-- <includeAll path="./init" relativeToChangelogFile="true"/>
     <includeAll path="./data" relativeToChangelogFile="true"/>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="002-create-module-table" author="sydorenko">
+        <createTable tableName="module">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_module" nullable="false" />
+            </column>
+            <column name="course_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="order_index" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="module"
+                                 baseColumnNames="course_id"
+                                 constraintName="fk_module_course"
+                                 referencedTableName="course"
+                                 referencedColumnNames="id" />
+
+        <addUniqueConstraint tableName="module"
+                             columnNames="course_id, order_index"
+                             constraintName="uk_module_course_id_order_index"/>
+
+        <sql>
+            INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at)
+            VALUES ('liquibase_lab', 'module', 'SYSTEM', 'sydorenko', 1, 'content_service',
+            'Modules that belong to courses. Order index defines the sequence of modules within a course.',
+            (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('module')),
+            SYSUTCDATETIME(), NULL);
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM dbo.tables WHERE name = 'module';</sql>
+            <dropTable tableName="module"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
