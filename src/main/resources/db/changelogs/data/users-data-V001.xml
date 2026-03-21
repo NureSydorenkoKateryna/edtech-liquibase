@@ -10,11 +10,11 @@
         </preConditions>
 
         <sql splitStatements="true">
-            INSERT INTO [user] (username, email, password_hash, created_at)
+            INSERT INTO [user] (username, email, password_hash)
             VALUES
-                ('alice_smith', 'alice.smith@gmail.com', 'ph_8jK92lPz1_secure', GETDATE()),
-                ('bob_jones', 'b.jones@company.org', 'ph_mN34vB56x_hash', GETDATE()),
-                ('charlie_dev', 'charlie.backend@outlook.com', 'ph_qW12eR34t_secret', GETDATE());
+                ('alice_smith', 'alice.smith@gmail.com', 'ph_8jK92lPz1_secure'),
+                ('bob_jones', 'b.jones@company.org', 'ph_mN34vB56x_hash'),
+                ('charlie_dev', 'charlie.backend@outlook.com', 'ph_qW12eR34t_secret');
         </sql>
 
         <rollback>
