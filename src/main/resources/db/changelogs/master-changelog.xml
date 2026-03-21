@@ -24,6 +24,7 @@
     <include file="init/answer_option-init.xml" relativeToChangelogFile="true"/>
     <include file="init/student_attempt-init.xml" relativeToChangelogFile="true"/>
     <include file="init/answer_attempt-init.xml" relativeToChangelogFile="true"/>
+    <include file="init/task_quiz-init.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->
