@@ -4,30 +4,26 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="004-insert-mock-users" author="derkach">
+    <changeSet id="006-insert-initial-users" author="derkach">
         <preConditions onFail="HALT">
             <tableExists tableName="user"/>
         </preConditions>
 
-        <sql splitStatements="false">
-            DECLARE @i INT = 1;
-
-            WHILE @i &lt;= 100
-            BEGIN
-            INSERT INTO [user] (username, email, password_hash)
-            VALUES (
-                'mock_user_' + CAST(@i AS VARCHAR),
-                'mock_user_' + CAST(@i AS VARCHAR) + '@example.com',
-                'mock_hashed_password_123'
-                );
-
-            SET @i = @i + 1;
-            END
+        <sql splitStatements="true">
+            INSERT INTO [user] (username, email, password_hash, created_at)
+            VALUES
+                ('alice_smith', 'alice.smith@gmail.com', 'ph_8jK92lPz1_secure', GETDATE()),
+                ('bob_jones', 'b.jones@company.org', 'ph_mN34vB56x_hash', GETDATE()),
+                ('charlie_dev', 'charlie.backend@outlook.com', 'ph_qW12eR34t_secret', GETDATE());
         </sql>
 
         <rollback>
             <sql>
-                DELETE FROM [user] WHERE email LIKE 'mock_user_%@example.com';
+                DELETE FROM [user] WHERE email IN (
+                'alice.smith@gmail.com',
+                'b.jones@company.org',
+                'charlie.backend@outlook.com'
+                );
             </sql>
         </rollback>
     </changeSet>
