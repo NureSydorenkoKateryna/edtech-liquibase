@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="005-insert-initial-roles" author="derkach">
+        <preConditions onFail="HALT">
+            <tableExists tableName="role"/>
+        </preConditions>
+
+        <sql splitStatements="true">
+            INSERT INTO role (name, description)
+            VALUES ('student', 'Regular student with access to learning materials');
+
+            INSERT INTO role (name, description)
+            VALUES ('moderator', 'User with rights to manage content and comments');
+
+            INSERT INTO role (name, description)
+            VALUES ('admin', 'Full system access and user management');
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM role WHERE name IN ('student', 'moderator', 'admin');
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
