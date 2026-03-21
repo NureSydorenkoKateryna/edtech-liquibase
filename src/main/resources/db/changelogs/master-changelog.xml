@@ -44,6 +44,7 @@
     <include file="data/users-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/user_roles-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/courses-data-V001.xml" relativeToChangelogFile="true"/>
+    <include file="data/modules-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/enrollements-data-V001.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
