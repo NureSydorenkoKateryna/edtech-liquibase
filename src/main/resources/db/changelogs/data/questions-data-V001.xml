@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-insert-initial-questions" author="druchek">
+
+        <preConditions onFail="HALT">
+            <tableExists tableName="question"/>
+            <tableExists tableName="quiz"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                           WHEN EXISTS (SELECT 1 FROM [quiz] WHERE title = 'Relational Fundamentals')
+                               AND EXISTS (SELECT 1 FROM [quiz] WHERE title = 'SQL/Schema Design')
+                               THEN 1 ELSE 0
+                           END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @quizId1 BIGINT, @quizId2 BIGINT;
+
+            SELECT @quizId1 = id FROM quiz WHERE title = 'Relational Fundamentals';
+            SELECT @quizId2 = id FROM quiz WHERE title = 'SQL/Schema Design';
+
+            INSERT INTO question (quiz_id, prompt, question_type, points)
+            VALUES
+                (@quizId1, 'Define the term "Atomicity" in the context of database transactions.', 'SHORT_ANSWER', 2.00),
+                (@quizId1, 'True or False: A primary key can contain NULL values.', 'BOOLEAN', 1.00),
+                (@quizId2, 'Write a SQL query to retrieve all students who scored above 90 on the midterm.', 'LONG_TEXT', 10.00),
+                (@quizId2, 'Which normal form ensures there are no transitive dependencies?', 'MULTIPLE_CHOICE', 2.00);
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM question
+                WHERE quiz_id IN (
+                SELECT id FROM quiz
+                WHERE title IN ('Relational Fundamentals', 'SQL/Schema Design', ''Final Assessment') );
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
