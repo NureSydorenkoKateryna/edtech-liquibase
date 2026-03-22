@@ -51,6 +51,6 @@
     <include file="data/tasks-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/quizes-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/questions-data-V001.xml" relativeToChangelogFile="true"/>
-
+    <include file="data/answer_options-data-V001.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

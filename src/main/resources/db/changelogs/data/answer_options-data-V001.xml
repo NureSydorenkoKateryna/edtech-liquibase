@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="007-insert-initial-answer-options" author="druchek">
+
+        <preConditions onFail="HALT">
+            <tableExists tableName="answer_option"/>
+            <tableExists tableName="question"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                           WHEN EXISTS (SELECT 1 FROM [question] WHERE prompt = 'True or False: A primary key can contain NULL values.')
+                               AND EXISTS (SELECT 1 FROM [question] WHERE prompt = 'Which normal form ensures there are no transitive dependencies?')
+                               THEN 1 ELSE 0
+                           END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @q2Id BIGINT, @q4Id BIGINT;
+
+            SELECT @q2Id = id FROM question WHERE prompt = 'True or False: A primary key can contain NULL values.';
+            SELECT @q4Id = id FROM question WHERE prompt = 'Which normal form ensures there are no transitive dependencies?';
+
+            INSERT INTO answer_option (question_id, content, is_correct)
+            VALUES
+                (@q2Id, 'True', 0),
+                (@q2Id, 'False', 1);
+
+            INSERT INTO answer_option (question_id, content, is_correct)
+            VALUES
+                (@q4Id, 'First Normal Form (1NF)', 0),
+                (@q4Id, 'Second Normal Form (2NF)', 0),
+                (@q4Id, 'Third Normal Form (3NF)', 1),
+                (@q4Id, 'Boyce-Codd Normal Form (BCNF)', 0);
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM answer_option
+                WHERE question_id IN (
+                SELECT id FROM question
+                WHERE prompt IN (
+                    'True or False: A primary key can contain NULL values.',
+                    'Which normal form ensures there are no transitive dependencies?' ) );
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
