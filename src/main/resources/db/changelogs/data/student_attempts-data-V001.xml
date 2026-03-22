@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="008-insert-initial-student-attempts" author="derkach">
+        <preConditions onFail="HALT">
+            <tableExists tableName="student_attempt"/>
+            <tableExists tableName="enrollment"/>
+            <tableExists tableName="task"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                           WHEN EXISTS (
+                               SELECT 1
+                               FROM enrollment e
+                    WHERE e.completed_at IS NULL
+                           )
+                               AND EXISTS (SELECT 1 FROM task
+                                                    WHERE title = 'c1_m1_l1_task_1')
+                               THEN 1 ELSE 0
+                           END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @enrollmentId BIGINT;
+            DECLARE @taskId BIGINT;
+
+            SELECT @enrollmentId = e.id
+            FROM enrollment e
+            WHERE e.completed_at IS NULL;
+
+            SELECT @taskId = id FROM task WHERE title = 'c1_m1_l1_task_1';
+
+            INSERT INTO student_attempt (enrollment_id, task_id, submitted_at)
+            VALUES
+                (@enrollmentId, @taskId, NULL),
+                (@enrollmentId, @taskId, DATEADD(day, -1, GETDATE()));
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM student_attempt sa
+                INNER JOIN task t ON sa.task_id = t.id
+                WHERE t.title = 'c1_m1_l1_task_1';
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
