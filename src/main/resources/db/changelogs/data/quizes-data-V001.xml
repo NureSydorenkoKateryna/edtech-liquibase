@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="005-insert-initial-quizes" author="druchek">
+
+        <preConditions onFail="HALT">
+            <tableExists tableName="quiz"/>
+            <tableExists tableName="user"/>
+            <tableExists tableName="role"/>
+            <tableExists tableName="user_role"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                           WHEN EXISTS (
+                               SELECT 1
+                               FROM user_role ur
+                                        JOIN role r ON ur.role_id = r.id
+                               WHERE r.name = 'moderator'
+                           )
+                               THEN 1 ELSE 0
+                           END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @authorId BIGINT;
+
+            SELECT TOP 1 @authorId = ur.user_id
+            FROM user_role ur
+            JOIN role r ON ur.role_id = r.id
+            WHERE r.name = 'moderator';
+
+            INSERT INTO quiz (author_id, title, instructions)
+            VALUES
+                (@authorId, 'Relational Fundamentals', 'Answer all questions regarding the basic structure of RDBMS and ACID properties.'),
+                (@authorId, 'SQL/Schema Design', 'This exam tests your ability to write DDL/DML statements and design normalized schemas.'),
+                (@authorId, 'Final Assessment', 'Demonstrate your knowledge of indexing strategies and query performance tuning.');
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM quiz
+                WHERE title IN ('Relational Fundamentals', 'SQL/Schema Design', ''Final Assessment')
+                AND author_id IN (
+                    SELECT ur.user_id
+                    FROM user_role ur
+                    JOIN role r ON ur.role_id = r.id
+                    WHERE r.name = 'moderator' );
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

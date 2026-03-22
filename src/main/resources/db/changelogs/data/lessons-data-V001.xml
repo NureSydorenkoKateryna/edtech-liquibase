@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="004-insert-initial-lessons" author="bilous">
+        <preConditions onFail="HALT">
+            <tableExists tableName="lesson"/>
+            <tableExists tableName="module"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                    WHEN EXISTS (SELECT 1 FROM module WHERE title = 'c1_module_1')
+                    THEN 1 ELSE 0
+                    END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @module1Id BIGINT;
+
+            SELECT @module1Id = id
+            FROM module
+            WHERE title = 'c1_module_1';
+
+            INSERT INTO lesson (module_id, title, content_url, order_index)
+            VALUES
+            (@module1Id, 'c1_m1_lesson_1', 'https://example.com/lessons/c1-m1-l1', 1),
+            (@module1Id, 'c1_m1_lesson_2', 'https://example.com/lessons/c1-m1-l2', 2),
+            (@module1Id, 'c1_m1_lesson_3', 'https://example.com/lessons/c1-m1-l3', 3);
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM lesson
+                WHERE module_id IN (SELECT id FROM module WHERE title = 'c1_module_1')
+                AND title IN ('c1_m1_lesson_1', 'c1_m1_lesson_2', 'c1_m1_lesson_3');
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
