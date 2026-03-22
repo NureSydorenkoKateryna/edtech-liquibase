@@ -48,5 +48,6 @@
     <include file="data/modules-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/enrollements-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/lessons-data-V001.xml" relativeToChangelogFile="true"/>
+    <include file="data/tasks-data-V001.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
