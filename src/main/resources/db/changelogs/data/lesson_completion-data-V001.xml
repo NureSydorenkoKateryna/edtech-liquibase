@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-insert-initial-lesson-completions" author="bilous">
+        <preConditions onFail="HALT">
+            <tableExists tableName="lesson_completion"/>
+            <tableExists tableName="enrollment"/>
+            <tableExists tableName="lesson"/>
+            <tableExists tableName="course"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM enrollment e
+                        JOIN course c ON e.course_id = c.id
+                        WHERE c.title = 'course_1'
+                    )
+                    AND EXISTS (SELECT 1 FROM lesson WHERE title = 'c1_m1_lesson_1')
+                    AND EXISTS (SELECT 1 FROM lesson WHERE title = 'c1_m1_lesson_2')
+                    AND EXISTS (SELECT 1 FROM lesson WHERE title = 'c1_m1_lesson_3')
+                    THEN 1 ELSE 0
+                    END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @enrollment1Id BIGINT;
+            DECLARE @lesson1Id BIGINT;
+            DECLARE @lesson2Id BIGINT;
+            DECLARE @lesson3Id BIGINT;
+
+            SELECT TOP 1 @enrollment1Id = e.id
+            FROM enrollment e
+            JOIN course c ON e.course_id = c.id
+            WHERE c.title = 'course_1';
+
+            SELECT @lesson1Id = id FROM lesson WHERE title = 'c1_m1_lesson_1';
+            SELECT @lesson2Id = id FROM lesson WHERE title = 'c1_m1_lesson_2';
+            SELECT @lesson3Id = id FROM lesson WHERE title = 'c1_m1_lesson_3';
+
+            INSERT INTO lesson_completion (enrollment_id, lesson_id, completed_at)
+            VALUES
+            (@enrollment1Id, @lesson1Id, DATEADD(day, -3, GETDATE())),
+            (@enrollment1Id, @lesson2Id, DATEADD(day, -2, GETDATE())),
+            (@enrollment1Id, @lesson3Id, DATEADD(day, -1, GETDATE()));
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM lesson_completion
+                WHERE enrollment_id IN (
+                    SELECT e.id
+                    FROM enrollment e
+                    JOIN course c ON e.course_id = c.id
+                    WHERE c.title = 'course_1'
+                )
+                AND lesson_id IN (
+                    SELECT id
+                    FROM lesson
+                    WHERE title IN ('c1_m1_lesson_1', 'c1_m1_lesson_2', 'c1_m1_lesson_3')
+                );
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
