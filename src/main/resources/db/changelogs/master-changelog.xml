@@ -32,6 +32,7 @@
     <!--  ALTER TABLE, ADD COLUMN, RENAME, etc.        -->
     <!-- ============================================= -->
     <!-- <include file="changes/your-change-file.xml" relativeToChangelogFile="true"/> -->
+    <include file="changes/student_attempt-channge-V001.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->
