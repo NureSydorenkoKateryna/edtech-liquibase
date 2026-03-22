@@ -32,6 +32,7 @@
     <!--  ALTER TABLE, ADD COLUMN, RENAME, etc.        -->
     <!-- ============================================= -->
     <!-- <include file="changes/your-change-file.xml" relativeToChangelogFile="true"/> -->
+    <include file="changes/student_attempt-channge-V001.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->
@@ -46,6 +47,10 @@
     <include file="data/courses-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/modules-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/enrollements-data-V001.xml" relativeToChangelogFile="true"/>
+    <include file="data/lessons-data-V001.xml" relativeToChangelogFile="true"/>
+    <include file="data/tasks-data-V001.xml" relativeToChangelogFile="true"/>
+    <include file="data/quizes-data-V001.xml" relativeToChangelogFile="true"/>
+    <include file="data/questions-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/answer_options-data-V001.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
