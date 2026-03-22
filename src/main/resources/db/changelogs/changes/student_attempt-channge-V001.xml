@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="008-add-auto-increment-to-student-attempt-id" author="sydorenko">
+
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="student_attempt"/>
+            <tableExists tableName="answer_attempt"/>
+            <columnExists tableName="student_attempt" columnName="id"/>
+            <columnExists tableName="answer_attempt" columnName="student_attempt_id" />
+
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM sys.identity_columns
+                WHERE object_id = OBJECT_ID('student_attempt')
+                AND name = 'id';
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="true">
+            ALTER TABLE answer_attempt DROP CONSTRAINT fk_answer_attempt_student_attempt;
+            ALTER TABLE student_attempt DROP CONSTRAINT pk_student_attempt;
+            ALTER TABLE student_attempt DROP COLUMN id;
+
+            -- I leave it start with 1 but if table already has data, it can lead to PK violation. Can we set it to max(id) + 1?
+            ALTER TABLE student_attempt ADD id BIGINT IDENTITY(1,1) NOT NULL;
+            ALTER TABLE student_attempt ADD CONSTRAINT pk_student_attempt PRIMARY KEY (id);
+            ALTER TABLE answer_attempt ADD CONSTRAINT fk_answer_attempt_student_attempt
+            FOREIGN KEY (student_attempt_id) REFERENCES student_attempt(id);
+        </sql>
+
+        <rollback>
+            <sql splitStatements="true">
+                ALTER TABLE answer_attempt DROP CONSTRAINT fk_answer_attempt_student_attempt;
+                ALTER TABLE student_attempt DROP CONSTRAINT pk_student_attempt;
+                ALTER TABLE student_attempt DROP COLUMN id;
+                ALTER TABLE student_attempt ADD id BIGINT NOT NULL;
+
+                ALTER TABLE student_attempt ADD CONSTRAINT pk_student_attempt PRIMARY KEY (id);
+                ALTER TABLE answer_attempt ADD CONSTRAINT fk_answer_attempt_student_attempt
+                FOREIGN KEY (student_attempt_id) REFERENCES student_attempt(id);
+            </sql>
+        </rollback>
+
+    </changeSet>
+</databaseChangeLog>
