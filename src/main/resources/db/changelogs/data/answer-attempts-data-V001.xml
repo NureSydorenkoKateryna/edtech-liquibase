@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="009-insert-initial-answer-attempts" author="druchek">
+
+        <preConditions onFail="HALT">
+            <tableExists tableName="answer_attempt"/>
+            <tableExists tableName="answer_option"/>
+            <tableExists tableName="question"/>
+            <tableExists tableName="student_attempt"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                           WHEN EXISTS (SELECT 1 FROM question WHERE prompt = 'True or False: A primary key can contain NULL values.')
+                               AND EXISTS (SELECT 1 FROM answer_option WHERE content = 'False')
+                               THEN 1 ELSE 0 END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @qId BIGINT, @q2Id BIGINT;
+            DECLARE @optId BIGINT;
+            DECLARE @studentAttemptId BIGINT;
+
+            SELECT @qId = id FROM question WHERE prompt = 'Define the term "Atomicity" in the context of database transactions.';
+            SELECT @q2Id = id FROM question WHERE prompt = 'True or False: A primary key can contain NULL values.';
+
+            SELECT @optId = id FROM answer_option WHERE question_id = @q2Id AND content = 'False';
+
+            SELECT TOP 1 @studentAttemptId = id FROM student_attempt ORDER BY id DESC;
+
+            INSERT INTO answer_attempt (answer_option_id, question_id, student_attempt_id, provided_text, is_answer_correct)
+            VALUES
+                (NULL, @qId, @studentAttemptId, 'Answer for the question.', 1),
+                (@optId, NULL, @studentAttemptId, NULL, 1);
+        </sql>
+
+        <rollback>
+            <sql splitStatements="false">
+                DELETE FROM answer_attempt
+                WHERE
+                (question_id = (SELECT id FROM question WHERE prompt = 'Define the term "Atomicity" in the context of database transactions.')
+                AND provided_text = 'Answer for the question.')
+                OR
+                (answer_option_id = (
+                SELECT ao.id FROM answer_option ao
+                JOIN question q ON ao.question_id = q.id
+                WHERE q.prompt = 'True or False: A primary key can contain NULL values.'
+                AND ao.content = 'False'
+                ));
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
