@@ -54,5 +54,6 @@
     <include file="data/answer_options-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/lesson_completion-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/student_attempts-data-V001.xml" relativeToChangelogFile="true"/>
+    <include file="data/task_quizzes-data-V001.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
