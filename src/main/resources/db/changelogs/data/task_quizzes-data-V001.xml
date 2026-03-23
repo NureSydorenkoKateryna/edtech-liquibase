@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="009-insert-initial-task-quizzes" author="sydorenko">
+
+        <preConditions onFail="HALT">
+            <tableExists tableName="task_quiz"/>
+            <tableExists tableName="task"/>
+            <tableExists tableName="quiz"/>
+
+            <sqlCheck expectedResult="1">
+                SELECT CASE
+                WHEN EXISTS (SELECT 1 FROM task WHERE title = 'c1_m1_l1_task_1')
+                AND EXISTS (SELECT 1 FROM task WHERE title = 'c1_m1_l2_task_1')
+                AND EXISTS (SELECT 1 FROM task WHERE title = 'c1_m1_l3_task_1')
+                AND EXISTS (SELECT 1 FROM quiz WHERE title = 'Relational Fundamentals')
+                AND EXISTS (SELECT 1 FROM quiz WHERE title = 'SQL/Schema Design')
+                AND EXISTS (SELECT 1 FROM quiz WHERE title = 'Final Assessment')
+                THEN 1 ELSE 0
+                END;
+            </sqlCheck>
+        </preConditions>
+
+        <sql splitStatements="false">
+            DECLARE @task1Id BIGINT;
+            DECLARE @task2Id BIGINT;
+            DECLARE @task3Id BIGINT;
+
+            DECLARE @quiz1Id BIGINT;
+            DECLARE @quiz2Id BIGINT;
+            DECLARE @quiz3Id BIGINT;
+
+            SELECT @task1Id = id FROM task WHERE title = 'c1_m1_l1_task_1';
+            SELECT @task2Id = id FROM task WHERE title = 'c1_m1_l2_task_1';
+            SELECT @task3Id = id FROM task WHERE title = 'c1_m1_l3_task_1';
+
+            SELECT @quiz1Id = id FROM quiz WHERE title = 'Relational Fundamentals';
+            SELECT @quiz2Id = id FROM quiz WHERE title = 'SQL/Schema Design';
+            SELECT @quiz3Id = id FROM quiz WHERE title = 'Final Assessment';
+
+            INSERT INTO task_quiz (task_id, quiz_id, time_limit_minutes, passing_score)
+            VALUES
+            (@task1Id, @quiz1Id, 30, 20),
+            (@task2Id, @quiz2Id, 45, 15),
+            (@task3Id, @quiz3Id, 25, 5);
+        </sql>
+
+        <rollback>
+            <sql>
+                DELETE FROM task_quiz
+                WHERE task_id IN (
+                SELECT id FROM task WHERE title IN ('c1_m1_l1_task_1', 'c1_m1_l2_task_1', 'c1_m1_l3_task_1')
+                )
+                AND quiz_id IN (
+                SELECT id FROM quiz WHERE title IN ('Relational Fundamentals', 'SQL/Schema Design', 'Final Assessment')
+                );
+            </sql>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>
