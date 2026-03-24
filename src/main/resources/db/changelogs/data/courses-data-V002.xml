@@ -16,7 +16,7 @@
                 'Load testing course description',
                 GETDATE(),
                 GETDATE()
-            FROM GENERATE_SERIES(1, 10000);
+            FROM GENERATE_SERIES(1, 1000);
         </sql>
         <rollback>
             <sql>DELETE FROM course WHERE title LIKE 'Mock Course %';</sql>

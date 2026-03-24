@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="011-seed-enrollments" author="sydorenko">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="enrollment"/>
+        </preConditions>
+
+        <sql splitStatements="false">
+            INSERT INTO enrollment (course_id, user_id, enrolled_at)
+            SELECT c.id, u.id, GETDATE()
+            FROM (SELECT TOP 1000 id FROM [user] WHERE username LIKE 'student_%') u
+            CROSS JOIN (SELECT TOP 1000 id FROM course WHERE title LIKE 'Mock Course %') c;
+        </sql>
+        <rollback>
+            <sql>
+                DELETE e FROM enrollment e 
+                INNER JOIN [user] u ON e.user_id = u.id 
+                WHERE u.username LIKE 'student_%';
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
