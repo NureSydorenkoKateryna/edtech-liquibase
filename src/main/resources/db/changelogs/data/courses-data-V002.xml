@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="010-insert-mock-courses" author="derkach">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="course"/></preConditions>
+        <sql splitStatements="false">
+            DECLARE @AuthorId BIGINT = (SELECT TOP 1 id FROM [user]);
+
+            INSERT INTO course (author_id, title, description, published_at, created_at)
+            SELECT
+                @AuthorId,
+                'Mock Course ' + CAST(value AS VARCHAR(10)),
+                'Load testing course description',
+                GETDATE(),
+                GETDATE()
+            FROM GENERATE_SERIES(1, 10000);
+        </sql>
+        <rollback>
+            <sql>DELETE FROM course WHERE title LIKE 'Mock Course %';</sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

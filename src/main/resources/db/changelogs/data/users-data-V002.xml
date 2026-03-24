@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="009-insert-mock-users" author="derkach">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="user"/></preConditions>
+        <sql splitStatements="false">
+            INSERT INTO [user] (username, email, password_hash, created_at)
+            SELECT
+                'student_' + CAST(value AS VARCHAR(10)),
+                'student_' + CAST(value AS VARCHAR(10)) + '@test.com',
+                'mock_hash_xyz',
+                GETDATE()
+            FROM GENERATE_SERIES(1, 10000);
+        </sql>
+        <rollback>
+            <sql>DELETE FROM [user] WHERE username LIKE 'student_%';</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
