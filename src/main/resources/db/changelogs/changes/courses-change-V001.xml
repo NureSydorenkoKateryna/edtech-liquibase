@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="012-add-total-lessons-to-course" author="derkach">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="course"/>
+            <not>
+                <columnExists tableName="course" columnName="total_lessons"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="course">
+            <column name="total_lessons" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>
+            UPDATE dbo.tables
+            SET
+                column_count = (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('course')),
+                last_update_at = SYSUTCDATETIME(),
+                version = version + 1
+            WHERE name = 'course'
+              AND db_ = 'liquibase_lab';
+        </sql>
+
+        <rollback>
+            <dropColumn tableName="course" columnName="total_lessons"/>
+            <sql>
+                UPDATE dbo.tables
+                SET
+                column_count = (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('course')),
+                last_update_at = SYSUTCDATETIME(),
+                version = version - 1
+                WHERE name = 'course'
+                AND db_ = 'liquibase_lab';
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
