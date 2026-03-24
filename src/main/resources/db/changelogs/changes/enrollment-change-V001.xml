@@ -29,6 +29,15 @@
 
         <rollback>
             <dropColumn tableName="enrollment" columnName="completed_lessons_count"/>
+            <sql>
+                UPDATE dbo.tables
+                SET
+                column_count = (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('enrollment')),
+                last_update_at = SYSUTCDATETIME(),
+                version = version + 1
+                WHERE name = 'enrollment'
+                AND db_ = 'liquibase_lab';
+            </sql>
         </rollback>
     </changeSet>
 </databaseChangeLog>
