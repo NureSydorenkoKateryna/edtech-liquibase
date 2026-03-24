@@ -46,7 +46,7 @@
                 SET
                 column_count = (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('lesson')),
                 last_update_at = SYSUTCDATETIME(),
-                version = version + 1
+                version = version - 1
                 WHERE name = 'lesson'
                 AND db_ = 'liquibase_lab';
             </sql>
