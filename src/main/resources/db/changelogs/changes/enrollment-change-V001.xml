@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="013-add-completed-lessons-to-enrollment" author="sydorenko">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="enrollment"/>
+            <not>
+                <columnExists tableName="enrollment" columnName="completed_lessons_count"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="enrollment">
+            <column name="completed_lessons_count" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>
+            UPDATE dbo.tables
+            SET
+            column_count = (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('enrollment')),
+            last_update_at = SYSUTCDATETIME(),
+            version = version + 1
+            WHERE name = 'enrollment'
+            AND db_ = 'liquibase_lab';
+        </sql>
+
+        <rollback>
+            <dropColumn tableName="enrollment" columnName="completed_lessons_count"/>
+            <sql>
+                UPDATE dbo.tables
+                SET
+                column_count = (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('enrollment')),
+                last_update_at = SYSUTCDATETIME(),
+                version = version - 1
+                WHERE name = 'enrollment'
+                AND db_ = 'liquibase_lab';
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
