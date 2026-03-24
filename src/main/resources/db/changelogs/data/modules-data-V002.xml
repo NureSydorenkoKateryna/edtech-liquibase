@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="010-seed-modules" author="sydorenko">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="module"/>
+        </preConditions>
+        <sql splitStatements="false">
+            INSERT INTO module (course_id, title, description, order_index)
+            SELECT 
+                c.id, 
+                'Mock Module ' + CAST(v.value AS VARCHAR(10)), 
+                'Module description', 
+                v.value
+            FROM course c
+            CROSS JOIN GENERATE_SERIES(1, 10) v
+            WHERE c.title LIKE 'Mock Course %';
+        </sql>
+        <rollback>
+            <sql>DELETE FROM module WHERE title LIKE 'Mock Module %';</sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

@@ -58,6 +58,9 @@
     <include file="data/answer-attempts-data-V001.xml" relativeToChangelogFile="true"/>
     <include file="data/users-data-V002.xml" relativeToChangelogFile="true"/>
     <include file="data/courses-data-V002.xml" relativeToChangelogFile="true"/>
+    <include file="data/modules-data-V002.xml" relativeToChangelogFile="true"/>
     <include file="data/lessons-data-V002.xml" relativeToChangelogFile="true"/>
+    <include file="data/enrollments-data-V002.xml" relativeToChangelogFile="true"/>
+    <include file="data/lesson_completions-data-V002.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

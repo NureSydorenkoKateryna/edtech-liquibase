@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="012-seed-lesson-completions" author="sydorenko">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="lesson_completion"/></preConditions>
+        <sql splitStatements="false">
+            INSERT INTO lesson_completion (enrollment_id, lesson_id, completed_at)
+            SELECT 
+                e.id, 
+                l.id, 
+                GETDATE()
+            FROM enrollment e
+            INNER JOIN course c ON e.course_id = c.id
+            INNER JOIN module m ON c.id = m.course_id
+            INNER JOIN lesson l ON m.id = l.module_id
+            WHERE m.order_index BETWEEN 1 AND 10
+              AND e.user_id IN (SELECT top 100 id FROM [user] WHERE username LIKE 'student_%');
+        </sql>
+        <rollback>
+            <sql>
+                DELETE lc FROM lesson_completion lc
+                INNER JOIN enrollment e ON lc.enrollment_id = e.id
+                INNER JOIN [user] u ON e.user_id = u.id
+                WHERE u.username LIKE 'student_%';
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
