@@ -28,27 +28,29 @@
         </createIndex>
 
         <sql>
-            UPDATE dbo.tables
-            SET
-            column_count = (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('lesson')),
-            last_update_at = SYSUTCDATETIME(),
-            version = version + 1
-            WHERE name = 'lesson'
-            AND db_ = 'liquibase_lab';
+            INSERT INTO dbo.tables (db_, name, type, author, version, service, description, column_count, created_at, last_update_at )
+            VALUES (
+            'liquibase_lab',
+            'lesson',
+            'SYSTEM',
+            'sydorenko',
+            (SELECT COALESCE(MAX(version), 0) + 1 FROM dbo.tables WHERE name = 'lesson' AND db_ = 'liquibase_lab'),
+            'content_service',
+            'Add course_id foreign key to lesson table.',
+            (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('lesson')),
+            SYSUTCDATETIME(),
+            SYSUTCDATETIME());
         </sql>
-        
+
         <rollback>
             <dropIndex tableName="lesson" indexName="idx_lesson_course_id"/>
             <dropForeignKeyConstraint baseTableName="lesson" constraintName="fk_lesson_course"/>
             <dropColumn tableName="lesson" columnName="course_id"/>
             <sql>
-                UPDATE dbo.tables
-                SET
-                column_count = (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('lesson')),
-                last_update_at = SYSUTCDATETIME(),
-                version = version - 1
+                DELETE FROM dbo.tables
                 WHERE name = 'lesson'
-                AND db_ = 'liquibase_lab';
+                AND db_ = 'liquibase_lab'
+                AND version = (SELECT MAX(version) FROM dbo.tables WHERE name = 'lesson' AND db_ = 'liquibase_lab');
             </sql>
         </rollback>
     </changeSet>
