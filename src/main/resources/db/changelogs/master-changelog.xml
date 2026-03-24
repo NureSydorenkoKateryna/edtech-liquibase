@@ -35,6 +35,7 @@
     <include file="changes/student_attempt-change-V001.xml" relativeToChangelogFile="true"/>
     <include file="changes/enrollment-change-V001.xml" relativeToChangelogFile="true"/>
     <include file="changes/lesson-change-V001.xml" relativeToChangelogFile="true"/>
+    <include file="changes/courses-change-V001.xml" relativeToChangelogFile="true"/>
 
     <!-- ============================================= -->
     <!--  DATA: Seed data insertions                   -->
