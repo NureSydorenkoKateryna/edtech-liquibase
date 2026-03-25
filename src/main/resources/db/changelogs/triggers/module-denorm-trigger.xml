@@ -16,9 +16,8 @@
             AFTER DELETE
             AS
             BEGIN
-                SET NOCOUNT ON;
 
-                DECLARE @AffectedCourses TABLE (course_id BIGINT);
+            DECLARE @AffectedCourses TABLE (course_id BIGINT);
 
             INSERT INTO @AffectedCourses (course_id)
             SELECT DISTINCT course_id

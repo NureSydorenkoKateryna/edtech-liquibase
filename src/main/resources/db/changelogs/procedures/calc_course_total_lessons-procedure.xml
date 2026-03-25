@@ -12,7 +12,6 @@
             CREATE OR ALTER PROCEDURE sp_calc_course_total_lessons
                 AS
             BEGIN
-                SET NOCOUNT ON;
             UPDATE c
             SET c.total_lessons = (
                 SELECT COUNT(*)
