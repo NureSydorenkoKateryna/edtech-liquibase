@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="013-create-sp_map_lesson_course_id" author="derkach">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="lesson"/>
+        </preConditions>
+        <sql splitStatements="false">
+            CREATE OR ALTER PROCEDURE sp_map_lesson_course_id
+                AS
+            BEGIN
+            UPDATE l
+            SET l.course_id = m.course_id
+                FROM lesson l
+                INNER JOIN module m ON l.module_id = m.id
+            WHERE l.course_id IS NULL;
+            END;
+        </sql>
+
+        <rollback>
+            <sql>
+                UPDATE lesson SET course_id = NULL;
+                DROP PROCEDURE sp_map_lesson_course_id;
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

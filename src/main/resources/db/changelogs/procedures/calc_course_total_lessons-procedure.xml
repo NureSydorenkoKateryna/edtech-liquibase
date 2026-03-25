@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="014-create-sp_calc_course_total_lessons" author="derkach">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="lesson"/>
+            <tableExists tableName="course"/>
+        </preConditions>
+        <sql splitStatements="false">
+            CREATE OR ALTER PROCEDURE sp_calc_course_total_lessons
+                AS
+            BEGIN
+                SET NOCOUNT ON;
+            UPDATE c
+            SET c.total_lessons = (
+                SELECT COUNT(*)
+                FROM lesson l
+                WHERE l.course_id = c.id
+            )
+                FROM course c;
+            END;
+        </sql>
+
+        <rollback>
+            <sql>
+                UPDATE course SET total_lessons = 0;
+                DROP PROCEDURE sp_calc_course_total_lessons;
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
