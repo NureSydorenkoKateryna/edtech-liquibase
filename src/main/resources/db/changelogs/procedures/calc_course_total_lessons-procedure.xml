@@ -5,10 +5,8 @@
 
     <changeSet id="014-create-sp_calc_course_total_lessons" author="derkach">
         <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="lesson"/>
-                <tableExists tableName="course"/>
-            </not>
+            <tableExists tableName="lesson"/>
+            <tableExists tableName="course"/>
         </preConditions>
         <sql splitStatements="false">
             CREATE OR ALTER PROCEDURE sp_calc_course_total_lessons

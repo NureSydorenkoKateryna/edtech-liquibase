@@ -5,9 +5,7 @@
 
     <changeSet id="013-create-sp_map_lesson_course_id" author="derkach">
         <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="lesson"/>
-            </not>
+            <tableExists tableName="lesson"/>
         </preConditions>
         <sql splitStatements="false">
             CREATE OR ALTER PROCEDURE sp_map_lesson_course_id
