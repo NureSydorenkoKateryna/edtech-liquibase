@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="016-create-lesson-completion-denorm-trigger" author="sydorenko">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="lesson_completion"/>
+            <tableExists tableName="enrollment"/>
+        </preConditions>
+
+        <sql splitStatements="false">
+            CREATE OR ALTER TRIGGER trg_lesson_completion_denorm
+            ON lesson_completion
+            AFTER INSERT, DELETE
+            AS
+            BEGIN
+            DECLARE @AffectedEnrollments TABLE (enrollment_id BIGINT);
+
+            INSERT INTO @AffectedEnrollments (enrollment_id)
+            SELECT enrollment_id FROM inserted
+            UNION
+            SELECT enrollment_id FROM deleted;
+
+            UPDATE e
+            SET completed_lessons_count = (
+                SELECT COUNT(*)
+                FROM lesson_completion lc
+                WHERE lc.enrollment_id = e.id
+            )
+            FROM enrollment e
+            INNER JOIN @AffectedEnrollments ae ON e.id = ae.enrollment_id;
+            END;
+        </sql>
+        <rollback>
+            <sql>DROP TRIGGER trg_lesson_completion_denorm;</sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

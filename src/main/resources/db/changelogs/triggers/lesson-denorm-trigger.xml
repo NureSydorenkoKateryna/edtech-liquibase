@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="017-create-lesson-denorm-trigger" author="sydorenko">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="lesson"/>
+            <tableExists tableName="course"/>
+            <tableExists tableName="module"/>
+        </preConditions>
+
+        <sql splitStatements="false">
+            CREATE OR ALTER TRIGGER trg_lesson_denorm
+            ON lesson
+            AFTER INSERT, UPDATE, DELETE
+            AS
+            BEGIN
+
+            IF EXISTS (SELECT 1 FROM inserted WHERE course_id IS NULL)
+            BEGIN
+            UPDATE l
+                SET l.course_id = m.course_id
+                FROM lesson l
+                INNER JOIN inserted i ON l.id = i.id
+                INNER JOIN module m ON i.module_id = m.id
+                WHERE l.course_id IS NULL;
+            END
+
+            UPDATE c
+            SET c.total_lessons = (
+                SELECT COUNT(*)
+                FROM lesson l
+                WHERE l.course_id = c.id
+            )
+            FROM course c
+            WHERE c.id IN (
+                SELECT ISNULL(i.course_id, m.course_id)
+                FROM inserted i LEFT JOIN module m ON i.module_id = m.id
+                UNION
+                SELECT ISNULL(d.course_id, m.course_id)
+                FROM deleted d LEFT JOIN module m ON d.module_id = m.id
+            );
+            END;
+        </sql>
+        <rollback>
+            <sql>DROP TRIGGER trg_lesson_denorm;</sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

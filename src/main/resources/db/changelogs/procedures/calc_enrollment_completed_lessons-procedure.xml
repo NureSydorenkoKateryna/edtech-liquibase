@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="015-create-sp-calc-completed-lessons" author="sydorenko">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="enrollment"/>
+        </preConditions>
+
+        <sql splitStatements="false">
+            CREATE OR ALTER PROCEDURE sp_calc_enrollment_completed_lessons
+            AS
+            BEGIN
+                UPDATE e
+                SET e.completed_lessons_count = (
+                    SELECT COUNT(*)
+                    FROM lesson_completion lc
+                    WHERE lc.enrollment_id = e.id
+                )
+                FROM enrollment e;
+            END;
+        </sql>
+
+        <rollback>
+            <sql>
+                UPDATE enrollment SET completed_lessons_count = 0;
+                DROP PROCEDURE sp_calc_enrollment_completed_lessons;
+            </sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
