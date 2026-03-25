@@ -37,6 +37,14 @@
     <include file="changes/lesson-change-V001.xml" relativeToChangelogFile="true"/>
     <include file="changes/courses-change-V001.xml" relativeToChangelogFile="true"/>
 
+    <!-- Procedure changes -->
+    <include file="procedures/calc_enrollment_completed_lessons-procedure.xml" relativeToChangelogFile="true"/>
+
+    <!-- Trigger changes -->
+    <include file="triggers/lesson_completion-denorm-trigger.xml" relativeToChangelogFile="true"/>
+    <include file="triggers/lesson-denorm-trigger.xml" relativeToChangelogFile="true"/>
+
+
     <!-- ============================================= -->
     <!--  DATA: Seed data insertions                   -->
     <!--  INSERT statements for reference data         -->
