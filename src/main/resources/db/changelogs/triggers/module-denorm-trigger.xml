@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="016-create-module-denorm-trigger" author="derkach">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="lesson"/>
+            <tableExists tableName="course"/>
+            <tableExists tableName="module"/>
+        </preConditions>
+
+        <sql splitStatements="false">
+            CREATE OR ALTER TRIGGER trg_module_delete_denorm
+            ON module
+            AFTER DELETE
+            AS
+            BEGIN
+                SET NOCOUNT ON;
+
+                DECLARE @AffectedCourses TABLE (course_id BIGINT);
+
+            INSERT INTO @AffectedCourses (course_id)
+            SELECT DISTINCT course_id
+            FROM deleted;
+
+            UPDATE c
+            SET c.total_lessons = (
+                SELECT COUNT(l.id)
+                FROM lesson l
+                WHERE l.course_id = c.id
+            )
+                FROM course c
+                INNER JOIN @AffectedCourses ac ON c.id = ac.course_id;
+            END;
+        </sql>
+        <rollback>
+            <sql>DROP TRIGGER trg_module_delete_denorm;</sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

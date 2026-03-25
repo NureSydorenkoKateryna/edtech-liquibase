@@ -39,10 +39,13 @@
 
     <!-- Procedure changes -->
     <include file="procedures/calc_enrollment_completed_lessons-procedure.xml" relativeToChangelogFile="true"/>
+    <include file="procedures/calc_course_total_lessons-procedure.xml" relativeToChangelogFile="true"/>
+    <include file="procedures/map_lesson_course_id-procedure.xml" relativeToChangelogFile="true"/>
 
     <!-- Trigger changes -->
     <include file="triggers/lesson_completion-denorm-trigger.xml" relativeToChangelogFile="true"/>
     <include file="triggers/lesson-denorm-trigger.xml" relativeToChangelogFile="true"/>
+    <include file="triggers/module-denorm-trigger.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->
