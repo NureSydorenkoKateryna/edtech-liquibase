@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="011-insert-mock-student-attempts" author="druchek">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="student_attempt"/></preConditions>
+        <sql splitStatements="false">
+            INSERT INTO student_attempt (enrollment_id, task_id, started_at, submitted_at)
+            SELECT
+                e.id,
+                tq.task_id,
+                DATEADD(DAY, -v.value, GETDATE()),
+                DATEADD(MINUTE, 30, DATEADD(DAY, -v.value, GETDATE()))
+            FROM (SELECT TOP 100 id FROM enrollment ORDER BY id) e
+                     CROSS JOIN (SELECT TOP 500 task_id FROM task_quiz tq
+                                                                 INNER JOIN task t ON tq.task_id = t.id
+                                 WHERE t.title LIKE 'mock[_]task[_]%') tq
+                     CROSS JOIN GENERATE_SERIES(1, 3) v;
+        </sql>
+        <rollback>
+            <sql>
+                DELETE sa FROM student_attempt sa
+                INNER JOIN task t ON sa.task_id = t.id
+                WHERE t.title LIKE 'mock[_]task[_]%';
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

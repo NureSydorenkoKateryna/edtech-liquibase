@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="012-insert-mock-answer-attempts" author="druchek">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="answer_attempt"/></preConditions>
+        <sql splitStatements="false">
+            INSERT INTO answer_attempt (answer_option_id, question_id, student_attempt_id, provided_text, is_answer_correct)
+            SELECT
+                ao.ao_id,
+                qn.id,
+                sa.id,
+                NULL,
+                CASE WHEN ABS(CHECKSUM(NEWID())) % 2 = 0 THEN 1 ELSE 0 END
+            FROM student_attempt sa
+                     INNER JOIN task_quiz tq ON sa.task_id = tq.task_id
+                     INNER JOIN question qn ON qn.quiz_id = tq.quiz_id
+                CROSS APPLY (
+                SELECT TOP 1 ao2.id AS ao_id
+                FROM answer_option ao2
+                WHERE ao2.question_id = qn.id
+                ORDER BY NEWID()
+            ) ao
+            WHERE tq.task_id IN (SELECT id FROM task WHERE title LIKE 'mock[_]task[_]%');
+        </sql>
+        <rollback>
+            <sql>
+                DELETE aa FROM answer_attempt aa
+                INNER JOIN student_attempt sa ON aa.student_attempt_id = sa.id
+                INNER JOIN task t ON sa.task_id = t.id
+                WHERE t.title LIKE 'mock[_]task[_]%';
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
