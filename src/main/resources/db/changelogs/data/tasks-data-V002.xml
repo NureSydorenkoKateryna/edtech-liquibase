@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="010-insert-mock-tasks" author="bilous">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="task"/></preConditions>
+        <sql splitStatements="false">
+            INSERT INTO task (lesson_id, title, task_type, min_score, max_score)
+            SELECT
+            l.id,
+            'mock_task_' + CAST(l.id AS VARCHAR(10)),
+            'quiz',
+            0,
+            100
+            FROM lesson l
+            WHERE l.title LIKE 'Mock Lesson %'
+            AND NOT EXISTS (SELECT 1 FROM task t WHERE t.lesson_id = l.id);
+        </sql>
+        <rollback>
+            <sql>DELETE FROM task WHERE title LIKE 'mock\_task\_%';</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

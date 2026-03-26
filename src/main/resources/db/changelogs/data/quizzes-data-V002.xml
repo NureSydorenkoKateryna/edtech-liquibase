@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="007-insert-mock-quizzes" author="bilous">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="quiz"/></preConditions>
+        <sql splitStatements="false">
+            DECLARE @AuthorId BIGINT = (SELECT TOP 1 id FROM [user]);
+
+            INSERT INTO quiz (author_id, title, instructions)
+            SELECT
+            @AuthorId,
+            'Mock Quiz ' + CAST(value AS VARCHAR(10)),
+            'Mock quiz instructions for load testing'
+            FROM GENERATE_SERIES(1, 500);
+        </sql>
+        <rollback>
+            <sql>DELETE FROM quiz WHERE title LIKE 'Mock Quiz %';</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

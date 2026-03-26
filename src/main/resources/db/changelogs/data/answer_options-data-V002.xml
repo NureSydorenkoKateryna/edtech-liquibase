@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="009-insert-mock-answer-options" author="bilous">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="answer_option"/></preConditions>
+        <sql splitStatements="false">
+            INSERT INTO answer_option (question_id, content, is_correct)
+            SELECT
+            qn.id,
+            'Option ' + CAST(v.value AS VARCHAR(10)) + ' for Q' + CAST(qn.id AS VARCHAR(10)),
+            CASE WHEN v.value = 1 THEN 1 ELSE 0 END
+            FROM question qn
+            CROSS JOIN GENERATE_SERIES(1, 4) v
+            WHERE qn.prompt LIKE 'Mock Question %';
+        </sql>
+        <rollback>
+            <sql>DELETE FROM answer_option WHERE content LIKE 'Option % for Q%';</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

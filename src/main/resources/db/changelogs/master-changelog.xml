@@ -75,5 +75,9 @@
     <include file="data/lessons-data-V002.xml" relativeToChangelogFile="true"/>
     <include file="data/enrollments-data-V002.xml" relativeToChangelogFile="true"/>
     <include file="data/lesson_completions-data-V002.xml" relativeToChangelogFile="true"/>
+    <include file="data/quizzes-data-V002.xml" relativeToChangelogFile="true"/>
+    <include file="data/questions-data-V002.xml" relativeToChangelogFile="true"/>
+    <include file="data/answer_options-data-V002.xml" relativeToChangelogFile="true"/>
+    <include file="data/tasks-data-V002.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
