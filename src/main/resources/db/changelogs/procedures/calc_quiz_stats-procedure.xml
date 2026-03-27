@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="013-create-sp_calc_quiz_stats" author="druchek">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="quiz"/>
+            <tableExists tableName="task_quiz"/>
+            <tableExists tableName="student_attempt"/>
+            <tableExists tableName="answer_attempt"/>
+        </preConditions>
+        <sql splitStatements="false">
+            CREATE OR ALTER PROCEDURE sp_calc_quiz_stats
+                AS
+            BEGIN
+            UPDATE q
+            SET
+                q.total_attempts = ISNULL(stats.attempt_count, 0),
+                q.success_rate = ISNULL(stats.calc_rate, 0.00)
+                FROM quiz q
+                LEFT JOIN (
+                    SELECT
+                        tq.quiz_id,
+                        COUNT(DISTINCT sa.id) AS attempt_count,
+                        CASE WHEN COUNT(aa.id) > 0
+                            THEN CAST(
+                                SUM(CASE WHEN aa.is_answer_correct = 1 THEN 1.0 ELSE 0 END)
+                                / COUNT(aa.id) * 100
+                            AS DECIMAL(5,2))
+                            ELSE 0.00
+                        END AS calc_rate
+                    FROM task_quiz tq
+                    INNER JOIN student_attempt sa ON sa.task_id = tq.task_id
+                    LEFT JOIN question qn ON tq.quiz_id = qn.quiz_id
+                    LEFT JOIN answer_attempt aa ON sa.id = aa.student_attempt_id AND qn.id = aa.question_id
+                    GROUP BY tq.quiz_id
+                ) stats ON q.id = stats.quiz_id;
+            END;
+        </sql>
+        <rollback>
+            <sql>
+                UPDATE quiz SET total_attempts = 0, success_rate = 0.00;
+                DROP PROCEDURE sp_calc_quiz_stats;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

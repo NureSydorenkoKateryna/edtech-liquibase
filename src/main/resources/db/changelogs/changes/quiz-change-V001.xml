@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="011-add-denorm-columns-to-quiz" author="bilous">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="quiz"/>
+            <not>
+                <columnExists tableName="quiz" columnName="total_attempts"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="quiz">
+            <column name="total_attempts" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_questions" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="success_rate" type="DECIMAL(5,2)" defaultValueNumeric="0.00">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <sql>
+            UPDATE dbo.tables
+            SET
+            column_count = (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('quiz')),
+            last_update_at = SYSUTCDATETIME(),
+            version = version + 1
+            WHERE name = 'quiz'
+            AND db_ = 'liquibase_lab';
+        </sql>
+
+        <rollback>
+            <dropColumn tableName="quiz" columnName="total_attempts"/>
+            <dropColumn tableName="quiz" columnName="total_questions"/>
+            <dropColumn tableName="quiz" columnName="success_rate"/>
+            <sql>
+                UPDATE dbo.tables
+                SET
+                column_count = (SELECT COUNT(*) FROM sys.columns WHERE object_id = OBJECT_ID('quiz')),
+                last_update_at = SYSUTCDATETIME(),
+                version = version - 1
+                WHERE name = 'quiz'
+                AND db_ = 'liquibase_lab';
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="012-create-sp_calc_quiz_total_questions" author="bilous">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="quiz"/>
+            <tableExists tableName="question"/>
+        </preConditions>
+        <sql splitStatements="false">
+            CREATE OR ALTER PROCEDURE sp_calc_quiz_total_questions
+            AS
+            BEGIN
+            UPDATE q
+            SET q.total_questions = (
+            SELECT COUNT(*)
+            FROM question qn
+            WHERE qn.quiz_id = q.id
+            )
+            FROM quiz q;
+            END;
+        </sql>
+        <rollback>
+            <sql>
+                UPDATE quiz SET total_questions = 0;
+                DROP PROCEDURE sp_calc_quiz_total_questions;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

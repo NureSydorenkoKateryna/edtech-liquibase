@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="015-create-student-attempt-denorm-trigger" author="druchek">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="student_attempt"/>
+            <tableExists tableName="task_quiz"/>
+            <tableExists tableName="quiz"/>
+        </preConditions>
+        <sql splitStatements="false">
+            CREATE OR ALTER TRIGGER trg_student_attempt_quiz_denorm
+            ON student_attempt
+            AFTER INSERT, DELETE
+            AS
+            BEGIN
+                DECLARE @AffectedQuizzes TABLE (quiz_id BIGINT);
+
+            INSERT INTO @AffectedQuizzes (quiz_id)
+            SELECT DISTINCT tq.quiz_id
+            FROM inserted i
+                     INNER JOIN task_quiz tq ON i.task_id = tq.task_id
+            UNION
+            SELECT DISTINCT tq.quiz_id
+            FROM deleted d
+                     INNER JOIN task_quiz tq ON d.task_id = tq.task_id;
+
+            UPDATE q
+            SET q.total_attempts = (
+                SELECT COUNT(DISTINCT sa.id)
+                FROM task_quiz tq
+                         INNER JOIN student_attempt sa ON sa.task_id = tq.task_id
+                WHERE tq.quiz_id = q.id
+            )
+                FROM quiz q
+                INNER JOIN @AffectedQuizzes aq ON q.id = aq.quiz_id;
+            END;
+        </sql>
+        <rollback>
+            <sql>DROP TRIGGER trg_student_attempt_quiz_denorm;</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
