@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="014-create-question-denorm-trigger" author="druchek">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="question"/>
+            <tableExists tableName="quiz"/>
+        </preConditions>
+        <sql splitStatements="false">
+            CREATE OR ALTER TRIGGER trg_question_denorm
+            ON question
+            AFTER INSERT, DELETE
+            AS
+            BEGIN
+                DECLARE @AffectedQuizzes TABLE (quiz_id BIGINT);
+
+            INSERT INTO @AffectedQuizzes (quiz_id)
+            SELECT quiz_id FROM inserted
+            UNION
+            SELECT quiz_id FROM deleted;
+
+            UPDATE q
+            SET q.total_questions = (
+                SELECT COUNT(*)
+                FROM question qn
+                WHERE qn.quiz_id = q.id
+            )
+                FROM quiz q
+                INNER JOIN @AffectedQuizzes aq ON q.id = aq.quiz_id;
+            END;
+        </sql>
+        <rollback>
+            <sql>DROP TRIGGER trg_question_denorm;</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
