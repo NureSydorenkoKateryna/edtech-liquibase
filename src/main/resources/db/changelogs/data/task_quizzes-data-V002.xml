@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="010-insert-mock-task-quizzes" author="druchek">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="task_quiz"/></preConditions>
+        <sql splitStatements="false">
+            INSERT INTO task_quiz (task_id, quiz_id, time_limit_minutes, passing_score)
+            SELECT t.id, q.id, 30, 50.00
+            FROM (SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS rn FROM task WHERE title LIKE 'mock[_]task[_]%') t
+                     JOIN (SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS rn FROM quiz WHERE title LIKE 'Mock Quiz %') q
+                          ON t.rn = q.rn;
+        </sql>
+        <rollback>
+            <sql>
+                DELETE tq FROM task_quiz tq
+                INNER JOIN task t ON tq.task_id = t.id
+                WHERE t.title LIKE 'mock[_]task[_]%';
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

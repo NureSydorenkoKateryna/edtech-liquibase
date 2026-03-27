@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="008-insert-mock-questions" author="bilous">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="question"/></preConditions>
+        <sql splitStatements="false">
+            INSERT INTO question (quiz_id, prompt, question_type, points)
+            SELECT
+            q.id,
+            'Mock Question ' + CAST(v.value AS VARCHAR(10)) + ' for Quiz ' + CAST(q.id AS VARCHAR(10)),
+            CASE v.value % 3
+            WHEN 0 THEN 'MULTIPLE_CHOICE'
+            WHEN 1 THEN 'BOOLEAN'
+            ELSE 'SHORT_ANSWER'
+            END,
+            CAST(v.value AS DECIMAL(10,2))
+            FROM quiz q
+            CROSS JOIN GENERATE_SERIES(1, 5) v
+            WHERE q.title LIKE 'Mock Quiz %';
+        </sql>
+        <rollback>
+            <sql>DELETE FROM question WHERE prompt LIKE 'Mock Question %';</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
