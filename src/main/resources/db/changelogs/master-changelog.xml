@@ -51,6 +51,7 @@
     <include file="triggers/module-denorm-trigger.xml" relativeToChangelogFile="true"/>
     <include file="triggers/question-denorm-trigger.xml" relativeToChangelogFile="true"/>
     <include file="triggers/student_attempt-denorm-trigger.xml" relativeToChangelogFile="true"/>
+    <include file="triggers/answer_attempt-denorm-trigger.xml" relativeToChangelogFile="true"/>
 
 
     <!-- ============================================= -->
